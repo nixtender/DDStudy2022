@@ -12,6 +12,8 @@ namespace Api
                 .ForMember(d=>d.PasswordHash, m=>m.MapFrom(s=>HashHelper.GetHash(s.Password)))
                 .ForMember(d=>d.BirthDate, m=>m.MapFrom(s=>s.BirthDate.UtcDateTime));
             CreateMap<DAL.Entites.User, Models.UserModel>();
+
+            CreateMap<DAL.Entites.Attach, Models.AttachModel>();
         }
     }
 }
