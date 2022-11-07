@@ -25,7 +25,9 @@ namespace DAL
                 .Entity<User>()
                 .HasIndex(f => f.Name)
                 .IsUnique();
+            //modelBuilder.Entity<User>().HasOne(b => b.Avatar).WithOne(b => b.User).HasForeignKey<Avatar>(b => b.UserId);
             modelBuilder.Entity<Avatar>().ToTable(nameof(Avatars));
+            modelBuilder.Entity<Avatar>().HasOne(b => b.User).WithOne(b => b.Avatar).HasForeignKey<Avatar>(b => b.UserId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
