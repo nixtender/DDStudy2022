@@ -16,5 +16,6 @@ namespace DAL.Entites
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<PostPicture>? PostPictures { get; set; }
+        public virtual ICollection<Comment>? Comments { get; set; }
     }
 }

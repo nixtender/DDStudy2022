@@ -15,12 +15,14 @@ namespace Api.Controllers
     {
         private readonly PostService _postService;
         private readonly AttachService _attachService;
+        private readonly UserService _userService;
         private readonly IMapper _mapper;
 
-        public PostController(PostService postService, AttachService attachService, IMapper mapper)
+        public PostController(PostService postService, AttachService attachService, UserService userService, IMapper mapper)
         {
             _postService = postService;
             _attachService = attachService;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -80,6 +82,31 @@ namespace Api.Controllers
         {
             var attach = await _postService.GetPostPicture(id);
             return File(System.IO.File.ReadAllBytes(attach.FilePath), attach.MimeType);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task AddComment(CreateComment model)
+        {
+            var post = await _postService.GetPost(model.PostId);
+            var userIdString = User.Claims.FirstOrDefault(x => x.Type == "id")?.Value;
+            if (Guid.TryParse(userIdString, out var userId))
+            {
+                var user = await _userService.GetUserById(userId);
+                await _postService.AddComment(post, model, user);
+            }    
+        }
+
+        [HttpGet]
+        public async Task<List<CommentModel>> GetComments(Guid postId)
+        {
+            var post = await _postService.GetPost(postId);
+            List<CommentModel> commentModels = new List<CommentModel>();
+            foreach(var comment in post.Comments)
+            {
+                commentModels.Add(_postService.GetComment(comment));
+            }
+            return commentModels;
         }
     }
 }

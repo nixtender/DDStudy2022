@@ -18,6 +18,9 @@ namespace Api
             CreateMap<Models.CreatePostModel, DAL.Entites.Post>()
                 .ForMember(d => d.Id, m => m.MapFrom(s => Guid.NewGuid()))
                 .ForMember(d => d.Created, m => m.MapFrom(s => DateTime.UtcNow));
+
+            CreateMap<Models.CreateComment, DAL.Entites.Comment>().ForMember(d => d.Created, m => m.MapFrom(s => DateTime.UtcNow));
+            CreateMap<DAL.Entites.Comment, Models.CommentModel>();
         }
     }
 }

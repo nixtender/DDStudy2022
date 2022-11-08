@@ -12,11 +12,13 @@ namespace Api.Services
     public class PostService
     {
         private readonly DAL.DataContext _context;
+        private readonly UserService _userService;
         private readonly IMapper _mapper;
 
-        public PostService (DataContext context, IMapper mapper)
+        public PostService (DataContext context, UserService userService, IMapper mapper)
         {
             _context = context;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -54,7 +56,7 @@ namespace Api.Services
 
         public async Task<Post> GetPost(Guid postId)
         {
-            var post = await _context.Posts.Include(x => x.PostPictures).FirstOrDefaultAsync(x => x.Id == postId);
+            var post = await _context.Posts.Include(x => x.PostPictures).Include(x => x.Comments).FirstOrDefaultAsync(x => x.Id == postId);
             if (post == null)
                 throw new Exception("post not found");
             return post;
@@ -64,6 +66,22 @@ namespace Api.Services
         {
             var atach = await _context.Attaches.FirstOrDefaultAsync(x => x.Id == id);
             return atach;
+        }
+
+        public async Task AddComment(Post post, CreateComment model, User user)
+        {
+            var dbComment = _mapper.Map<Comment>(model);
+            dbComment.Author = user.Name;
+            dbComment.Post = post;
+
+            await _context.Comments.AddAsync(dbComment);
+            await _context.SaveChangesAsync();
+        }
+
+        public CommentModel GetComment(Comment comment)
+        {
+            var commentModel = _mapper.Map<CommentModel>(comment);
+            return commentModel;
         }
     }
 }
