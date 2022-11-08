@@ -1,9 +1,11 @@
 ﻿using Api.Models;
 using Api.Services;
+using AutoMapper;
 using DAL.Entites;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers
 {
@@ -13,11 +15,13 @@ namespace Api.Controllers
     {
         private readonly PostService _postService;
         private readonly AttachService _attachService;
+        private readonly IMapper _mapper;
 
-        public PostController(PostService postService, AttachService attachService)
+        public PostController(PostService postService, AttachService attachService, IMapper mapper)
         {
             _postService = postService;
             _attachService = attachService;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -54,13 +58,28 @@ namespace Api.Controllers
             else throw new Exception("you are not authorized");
             
         }
-        /*public async Task<PostModel> AddPost([FromForm] CreatePostModel post)
+
+        [HttpGet]
+        public async Task<PostModel> GetPostById(Guid postId)
         {
-            var res = new List<MetadataModel>();
-            res = await _attachService.UploadFiles(post.Files);
-            var description = post.Description;
-            var newPost = new PostModel(res, description, DateTime.UtcNow);
-            return newPost;
-        }*/
+            var post = await _postService.GetPost(postId);
+            List<string> paths = new List<string>();
+            foreach(var postPicture in post.PostPictures)
+            {
+                var path = postPicture.Id;
+                var str = "/Api/post/GetPostPicture?id=";
+                var newPath = str + path;
+                paths.Add(newPath);
+            }
+            var postModel = new PostModel(paths, post.Description, post.Created, post.Author);
+            return postModel;
+        }
+
+        [HttpGet]
+        public async Task<FileResult> GetPostPicture(Guid id)
+        {
+            var attach = await _postService.GetPostPicture(id);
+            return File(System.IO.File.ReadAllBytes(attach.FilePath), attach.MimeType);
+        }
     }
 }

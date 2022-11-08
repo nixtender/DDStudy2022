@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Api.Controllers
 {
@@ -52,6 +53,7 @@ namespace Api.Controllers
         public async Task<FileResult> GetUserAvatar(Guid userId)
         {
             var attach = await _userService.GetUserAvatar(userId);
+            
             return File(System.IO.File.ReadAllBytes(attach.FilePath), attach.MimeType);
         }
 

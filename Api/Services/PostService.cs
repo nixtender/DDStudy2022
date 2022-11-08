@@ -5,6 +5,7 @@ using DAL.Entites;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Api.Services
 {
@@ -26,7 +27,7 @@ namespace Api.Services
             {
                 var dbPost = _mapper.Map<DAL.Entites.Post>(model);
                 dbPost.User = user;
-                //user.Post = dbPost;
+                dbPost.Author = user.Name;
 
                 await _context.Posts.AddAsync(dbPost);
                 await _context.SaveChangesAsync();
@@ -51,8 +52,18 @@ namespace Api.Services
             await _context.SaveChangesAsync();
         }
 
-        /*[HttpPost]
-        [Authorize]
-        public async Task AddPost()*/
+        public async Task<Post> GetPost(Guid postId)
+        {
+            var post = await _context.Posts.Include(x => x.PostPictures).FirstOrDefaultAsync(x => x.Id == postId);
+            if (post == null)
+                throw new Exception("post not found");
+            return post;
+        }
+
+        public async Task<Attach> GetPostPicture(Guid id)
+        {
+            var atach = await _context.Attaches.FirstOrDefaultAsync(x => x.Id == id);
+            return atach;
+        }
     }
 }
