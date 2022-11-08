@@ -55,6 +55,8 @@ builder.Services.AddDbContext<DAL.DataContext>(options =>
 builder.Services.AddAutoMapper(typeof(MapperProfile).Assembly);
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddTransient<AttachService>();
+builder.Services.AddScoped<PostService>();
 
 builder.Services.AddAuthentication(o =>
 {
